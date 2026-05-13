@@ -1,61 +1,98 @@
-# Konsep Proyek - Orbit S3
+# 📂 Rencana Proyek: S3 Explorer (Next.js + AWS SDK)
 
-Dokumen ini menjelaskan visi, tujuan, dan konsep arsitektur dari proyek **Orbit S3**. Proyek ini dirancang sebagai solusi manajemen penyimpanan objek yang efisien, terukur, dan aman berbasis protokol S3.
-
-## 1. Pendahuluan
-
-**Orbit S3** adalah platform manajemen penyimpanan (storage management) yang berfungsi sebagai jembatan antara pengguna dan layanan Object Storage (seperti AWS S3, Cloudflare R2, atau MinIO). Fokus utama proyek ini adalah memberikan abstraksi yang sederhana namun kuat untuk operasi CRUD file, manajemen bucket, dan pengaturan akses.
-
-## 2. Visi & Misi
-
-- **Visi**: Menjadi standar interface manajemen S3 yang paling intuitif dan performan untuk pengembang.
-- **Misi**:
-    - Menyederhanakan kompleksitas interaksi API S3.
-    - Memberikan transparansi dan kontrol penuh atas aset digital.
-    - Memastikan keamanan data dengan enkripsi dan manajemen izin yang ketat.
-
-## 3. Arsitektur Konseptual
-
-Orbit S3 dibangun dengan prinsip modularitas tinggi, memisahkan antara interface pengguna, logika bisnis, dan layer infrastruktur.
-
-### A. Layer Abstraksi
-- **Storage Provider Interface**: Kontrak standar untuk semua operasi storage.
-- **Service Layer**: Logika bisnis untuk validasi, transformasi data, dan manajemen metadata.
-- **API/Web Interface**: Layer interaksi pengguna akhir (Next.js App Router).
-
-### B. Alur Data (Data Flow)
-1. **Request**: Pengguna melakukan request (Upload/Download/List).
-2. **Validation**: Sistem melakukan validasi session, izin (IAM), dan tipe file.
-3. **Execution**: Service layer mengeksekusi perintah ke provider S3 yang dikonfigurasi.
-4. **Response**: Sistem mengembalikan hasil dalam format standar (JSend).
-
-## 4. Fitur Utama
-
-- **Multi-Provider Support**: Mendukung berbagai layanan yang kompatibel dengan protokol S3.
-- **Secure File Handling**: Manajemen Pre-signed URL untuk akses file yang aman dan terbatas waktu.
-- **Metadata Management**: Penyimpanan metadata tambahan untuk memudahkan pencarian dan kategorisasi aset.
-- **Performance Optimized**: Implementasi caching dan streaming untuk menangani file berukuran besar secara efisien.
-
-## 5. Teknologi Utama
-
-- **Framework**: [Next.js](https://nextjs.org/) (App Router)
-- **Language**: [TypeScript](https://www.typescriptlang.org/) (Strict Mode)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **SDK**: [AWS SDK for JavaScript (v3)](https://aws.amazon.com/sdk-for-javascript/)
-- **Validation**: [Zod](https://zod.dev/)
+Proyek ini bertujuan untuk membangun antarmuka web (GUI) yang ramah pengguna untuk mengelola **AWS S3 Object Storage**. Aplikasi ini mendukung koneksi dinamis menggunakan kredensial yang dimasukkan langsung oleh pengguna.
 
 ---
 
-## 6. Roadmap Pengembangan
+## 🏗️ Arsitektur Teknologi (Tech Stack)
 
-### Fase 1: Fondasi
-- [ ] Inisialisasi arsitektur dasar dan integrasi provider S3 utama.
-- [ ] Implementasi fungsi dasar (Upload, Download, List, Delete).
+| Komponen | Teknologi | Keterangan |
+| :--- | :--- | :--- |
+| **Framework** | Next.js 15+ (App Router) | Menggunakan versi terbaru untuk performa optimal. |
+| **Bahasa** | TypeScript | Type-safety untuk integrasi AWS SDK yang lebih aman. |
+| **Styling** | Tailwind CSS + Shadcn/UI | Untuk UI yang modern, responsif, dan premium. |
+| **Backend/SDK** | @aws-sdk/client-s3 | AWS SDK v3 untuk interaksi dengan S3. |
+| **State Management** | Zustand | Menyimpan kredensial sesi di RAM (volatile). |
+| **Data Fetching** | TanStack Query | Manajemen fetching, caching, dan sinkronisasi data. |
+| **Notifications** | Sonner | Toast notification yang cantik dan intuitif. |
+| **Upload Handling** | react-dropzone | Mendukung fitur Drag & Drop file. |
 
-### Fase 2: Peningkatan Keamanan & Fitur
-- [ ] Integrasi sistem Autentikasi dan Otorisasi (RBAC).
-- [ ] Fitur manajemen Pre-signed URL.
+---
 
-### Fase 3: Skalabilitas & UI/UX
-- [ ] Dashboard manajemen aset berbasis web yang interaktif.
-- [ ] Dukungan untuk multi-bucket dan multi-region.
+## 🔐 Manajemen Koneksi Dinamis
+
+Aplikasi tidak menggunakan satu set kredensial tetap di `.env`, melainkan membiarkan pengguna memasukkan kredensial mereka sendiri melalui UI:
+
+- **Halaman Koneksi**: Form input untuk *Access Key ID*, *Secret Access Key*, dan *Region*.
+- **Validasi Real-time**: Menjalankan perintah `ListBucketsCommand` saat tombol **Connect** diklik untuk verifikasi kredensial.
+- **Keamanan Sesi**: Kredensial disimpan di dalam *Zustand store*. Data akan hilang jika halaman di-refresh atau tab ditutup, memastikan tidak ada data sensitif yang tersimpan permanen di browser.
+
+---
+
+## 🛠️ Struktur Modular Folder
+
+```text
+/src
+ ├── app/               # Routing: Login, Dashboard, dan Bucket View
+ ├── components/        
+ │    ├── auth/         # ConnectionForm.tsx, AuthGuard.tsx
+ │    ├── layout/       # Sidebar.tsx, UserNav.tsx, Breadcrumbs.tsx
+ │    ├── bucket/       # BucketList.tsx, CreateBucketModal.tsx
+ │    ├── objects/      # FileTable.tsx, DropzoneUpload.tsx (Drag & Drop)
+ │    └── ui/           # Komponen reusable (Button, Input, Progress bar)
+ ├── hooks/             # Custom hooks: useS3Client.ts, useUpload.ts
+ ├── lib/               # Konfigurasi utility dan skema validasi (Zod)
+ ├── store/             # useAuthStore.ts (Zustand)
+ └── services/          # Server Actions untuk operasi S3 (Bucket & Object)
+```
+
+---
+
+## 📝 Roadmap Pengembangan
+
+### 1. Fase 0: Autentikasi & Setup Koneksi
+- [ ] Membangun UI form koneksi dengan validasi Zod.
+- [ ] Setup Zustand Store untuk menyimpan kredensial di memori.
+- [ ] Implementasi Server Action `verifyConnection` untuk mengetes kredensial.
+
+### 2. Fase 1: Explorer & Bucket Management
+- [ ] Halaman Dashboard: Menampilkan daftar bucket dalam bentuk kartu atau tabel.
+- [ ] Fitur *Create Bucket* dan *Delete Bucket* dengan dialog konfirmasi.
+- [ ] Notifikasi sukses/error menggunakan Sonner.
+
+### 3. Fase 2: Manajemen File & Drag & Drop 🚀
+- [ ] Implementasi `react-dropzone` untuk area drop file.
+- [ ] **Visual Progress Bar**: Menampilkan status unggahan (0-100%) untuk setiap file.
+- [ ] Dukungan *Multi-file Upload* (unggah banyak file sekaligus).
+- [ ] Feedback visual (overlay) saat file ditarik ke dalam area browser.
+
+### 4. Fase 3: Operasi Objek & File
+- [ ] **Download**: Mengenerate *Presigned URL* untuk unduhan aman.
+- [ ] **Delete Object**: Fitur hapus satu file atau hapus masal (*bulk delete*).
+- [ ] **Metadata View**: Melihat informasi ukuran file, tipe MIME, dan tanggal modifikasi.
+
+---
+
+## 💡 Saran & Strategi Keamanan
+
+1.  **Server-Side Proxy**: Selalu gunakan *Server Actions* untuk berinteraksi dengan AWS SDK. Jangan biarkan browser memanggil AWS secara langsung untuk menghindari eksposur kredensial di tab Network.
+2.  **Breadcrumb Navigation**: Implementasikan navigasi hirarkis (Contoh: `Home > my-bucket > folder-A`) karena S3 menggunakan sistem prefix.
+3.  **Error Handling**: Tangkap error spesifik dari AWS (seperti `AccessDenied` atau `NoSuchBucket`) dan tampilkan dalam bahasa yang mudah dipahami.
+4.  **Fitur Disconnect**: Sediakan tombol logout yang akan melakukan `clearStore()` di Zustand untuk menghapus jejak kredensial.
+
+---
+
+## 🚀 Perintah Instalasi Utama
+
+Gunakan perintah berikut untuk menginstal dependensi menggunakan **pnpm**:
+
+```bash
+# AWS SDK
+pnpm add @aws-sdk/client-s3 @aws-sdk/s3-request-presigner
+
+# State & UI Logic
+pnpm add zustand sonner react-dropzone lucide-react
+
+# TanStack Query & Validation
+pnpm add @tanstack/react-query zod
+```
