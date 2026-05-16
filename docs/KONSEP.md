@@ -50,10 +50,23 @@ Aplikasi tidak menggunakan satu set kredensial tetap di `.env`, melainkan membia
 
 ## 📝 Roadmap Pengembangan
 
-### 1. Fase 0: Autentikasi & Setup Koneksi
-- [ ] Membangun UI form koneksi dengan validasi Zod.
-- [ ] Setup Zustand Store untuk menyimpan kredensial di memori.
-- [ ] Implementasi Server Action `verifyConnection` untuk mengetes kredensial.
+### 1. Fase 0: Autentikasi & Setup Koneksi (Detailed)
+- [x] **Validasi Skema & Tipe Data**:
+    - Implementasi `connectionSchema` menggunakan Zod di `src/lib/schema.ts`.
+    - Mendukung *Custom Endpoint* untuk kompatibilitas dengan Cloudflare R2 atau MinIO.
+- [x] **State Management (Zustand)**:
+    - Setup `useAuthStore` di `src/store/auth-store.ts` untuk penyimpanan kredensial di RAM.
+    - Menambahkan fungsi `clearCredentials` untuk fitur *Disconnect*.
+- [x] **Server-Side Verification**:
+    - Implementasi Server Action `verifyConnection` di `src/services/auth.ts`.
+    - Menggunakan perintah `ListBucketsCommand` sebagai *health check* kredensial.
+- [x] **UI Connection Form**:
+    - Membangun form interaktif di `src/components/auth/connection-form.tsx`.
+    - Integrasi `react-hook-form` dengan `zodResolver`.
+    - Feedback visual menggunakan `Sonner` (toast) dan loading spinner.
+- [ ] **Auth Guard & Proteksi Route**:
+    - Membuat komponen `AuthGuard.tsx` untuk memproteksi halaman `/dashboard`.
+    - Implementasi logic redirect otomatis jika state `isConnected` bernilai false.
 
 ### 2. Fase 1: Explorer & Bucket Management
 - [ ] Halaman Dashboard: Menampilkan daftar bucket dalam bentuk kartu atau tabel.

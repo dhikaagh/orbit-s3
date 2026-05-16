@@ -3,14 +3,16 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
 import { connectionSchema, ConnectionInput } from '@/lib/schema';
-import { useAuthStore } from '@/store/useAuthStore';
+import { useAuthStore } from '@/store/auth-store';
 import { verifyConnection } from '@/services/auth';
 import { toast } from 'sonner';
 import { Loader2, Lock, Key, Globe, Link2 } from 'lucide-react';
 
 export default function ConnectionForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const setCredentials = useAuthStore((state) => state.setCredentials);
 
   const {
@@ -28,10 +30,10 @@ export default function ConnectionForm() {
     setIsLoading(true);
     try {
       const result = await verifyConnection(data);
-      if (result.success) {
+      if (result.status === 'success') {
         setCredentials(data);
         toast.success(result.message);
-        // Redirect logic can go here
+        router.push('/dashboard');
       } else {
         toast.error(result.message);
       }

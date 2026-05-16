@@ -1,4 +1,4 @@
-import ConnectionForm from "@/components/auth/ConnectionForm";
+import ConnectionForm from "@/components/auth/connection-form";
 import Image from "next/image";
 
 export default function Home() {
